@@ -1,0 +1,20 @@
+{
+  "name": "qq-fmt",
+  "version": "1.0.0",
+  "description": "Format member name in QQ group.",
+  "main": "index.ts",
+  "repository": "https://github.com/Zxilly/qq-fmt",
+  "author": "Zxilly <zxilly@outlook.com>",
+  "license": "MIT",
+  "scripts": {
+    "run:fmt": "node -r @swc-node/register fmt.ts"
+  },
+  "dependencies": {
+    "oicq": "^2.3.1",
+    "typescript": "^4.8.3"
+  },
+  "devDependencies": {
+    "@swc-node/register": "^1.5.1",
+    "@types/node": "^18.7.17"
+  }
+}
