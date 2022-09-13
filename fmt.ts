@@ -41,47 +41,55 @@ client.on("system.login.qrcode", function (e) {
     })
 })
 
-const allGroup = client.getGroupList()
-if (!allGroup.has(targetGroup)) {
-    console.error(`targetGroup ${targetGroup}`);
-}
+client.on("system.online", task)
 
-const group = client.pickGroup(targetGroup);
-
-const mainRule = new RegExp(main.re);
-const rulesList = rules?.map(r => {
-    return {
-        re: new RegExp(r.re),
-        warn: r.warn
+async function task() {
+    console.log("Executing format task");
+    const allGroup = client.getGroupList()
+    if (!allGroup.has(targetGroup)) {
+        console.error(`targetGroup ${targetGroup}`);
     }
-}) ?? [];
 
-const members = await group.getMemberMap()
-const failedMembers: string[] = [];
+    const group = client.pickGroup(targetGroup);
+
+    const mainRule = new RegExp(main.re);
+    const rulesList = rules?.map(r => {
+        return {
+            re: new RegExp(r.re),
+            warn: r.warn
+        }
+    }) ?? [];
+
+    const members = await group.getMemberMap()
+    const failedMembers: string[] = [];
 
 
-members.forEach((v, k) => {
-    if (v.role !== "member") {
-        return;
-    }
-    const name = v.card;
-    if (mainRule.test(name)) {
-        return;
-    } else {
-        failedMembers.push(name);
-    }
-})
+    members.forEach((v, k) => {
+        if (v.role !== "member") {
+            return;
+        }
+        const name = v.card || v.nickname;
+        if (mainRule.test(name)) {
+            return;
+        } else {
+            failedMembers.push(name);
+        }
+    })
 
-if (failedMembers.length > 0) {
-    let msg =
-        `以下成员的群名片不符合规范：\n` +
-        failedMembers.join("\n") +
-        '\n' +
-        '合格的群名片应该符合以下规则：\n';
-    if (main.warn) {
-        msg += main.warn;
-    } else {
-        msg += `正则：${main.re}`;
+    if (failedMembers.length > 0) {
+        let msg =
+            `以下成员的群名片不符合规范：\n` +
+            failedMembers.join("\n") +
+            '\n' +
+            '合格的群名片应该符合以下规则：\n';
+        if (main.warn) {
+            msg += main.warn;
+        } else {
+            msg += `正则：${main.re}`;
+        }
+
+        await client.sendGroupMsg(targetGroup, msg);
+        process.exit(0);
     }
 }
 
