@@ -8,7 +8,8 @@
   "author": "Zxilly <zxilly@outlook.com>",
   "license": "MIT",
   "scripts": {
-    "run:fmt": "tsx fmt.ts"
+    "run:lint": "tsx fmt.ts",
+    "run:monitor": "tsx monitor.ts"
   },
   "dependencies": {
     "oicq": "^2.3.1",
