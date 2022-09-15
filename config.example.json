@@ -1,0 +1,9 @@
+{
+  "uid": "login qq number",
+  "target": "target qq group",
+  "password": "login qq password",
+  "rule": {
+    "re": "regexp for qq group card name",
+    "warn": "human readable tips"
+  }
+}
