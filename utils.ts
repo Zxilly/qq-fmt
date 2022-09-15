@@ -40,10 +40,10 @@ export async function groupCheckAll(group: Group) {
         const msg = []
         msg.push(`以下成员的群名片不符合规范：\n`)
         for (const m of failedMembers) {
-            msg.push(segment.at(m.user_id, '\n'))
+            msg.push(segment.at(m.user_id,'\n'))
+            msg.push("\n")
         }
         let ruleText = "合格的群名片应该符合以下规则：\n" + config.rule.warn;
-
         msg.push(ruleText)
 
         await group.sendMsg(msg)
@@ -57,7 +57,6 @@ export async function getValidClientAndGroup(uid: number, group: number, passwor
     const client = createClient(uid, {
         platform: 3,
     })
-
     await client.login(password);
 
     if (!password) {

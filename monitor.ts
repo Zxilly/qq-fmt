@@ -1,4 +1,3 @@
-
 import {getConfig, getValidClientAndGroup, groupCheckAll} from "./utils";
 import {TextElem} from "oicq";
 
@@ -18,24 +17,24 @@ client.on("message.group", async (e) => {
         return;
     }
 
-    if (!e.atme){
+    if (!e.atme) {
         return;
     }
 
-    if (e.message.length <= 1){
+    if (e.message.length <= 1) {
         return;
     }
 
     const command = (e.message[1] as TextElem).text.trim().toLowerCase();
 
-    if (command === 'help'){
-        await client.sendGroupMsg(targetGroup, `当前支持的命令有：
-        help
-        checkAll
-        所有命令需要管理员权限
-        `)
+    if (command === 'help') {
+        await client.sendGroupMsg(targetGroup, "当前支持的命令有：\n" +
+            "help\n" +
+            "checkAll\n" +
+            "所有命令需要管理员权限"
+        )
         return;
-    } else if (command === 'checkall'){
+    } else if (command === 'checkall') {
         await groupCheckAll(group);
     }
 })
