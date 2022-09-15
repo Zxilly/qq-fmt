@@ -1,32 +1,47 @@
-import {getConfig, getValidClientAndGroup} from "./utils";
+
+import {getConfig, getValidClientAndGroup, groupCheckAll} from "./utils";
+import {TextElem} from "oicq";
 
 const config = await getConfig();
-const {client,group} = await getValidClientAndGroup(config.uid, config.targetGroup)
+const {client, group} = await getValidClientAndGroup(config.uid, config.target, config.password)
 
-const targetGroup = config.targetGroup;
-const mainRule = new RegExp(config.main.re);
-const mainWarn = config.main.warn;
+const targetGroup = config.target;
+const mainRule = new RegExp(config.rule.re);
+const mainWarn = config.rule.warn;
 
-if (!mainWarn) {
-    console.error("应为 mainRule 设置 warn");
-    process.exit(1);
-}
-
-const rulesList = config.rules?.map(r => {
-    return {
-        re: new RegExp(r.re),
-        warn: r.warn
+client.on("message.group", async (e) => {
+    if (e.group_id !== targetGroup) {
+        return;
     }
-}) ?? [];
 
-client.on("notice.group.increase", async (e) => {
-    const {user_id} = e;
-    const member = group.pickMember(user_id);
-    await member.sendMsg(`欢迎加入 ${group.name}，请注意群规，群名片应符合以下规则：\n${mainWarn}`);
+    if (e.sender.role === 'member') {
+        return;
+    }
+
+    if (!e.atme){
+        return;
+    }
+
+    if (e.message.length <= 1){
+        return;
+    }
+
+    const command = (e.message[1] as TextElem).text.trim().toLowerCase();
+
+    if (command === 'help'){
+        await client.sendGroupMsg(targetGroup, `当前支持的命令有：
+        help
+        checkAll
+        所有命令需要管理员权限
+        `)
+        return;
+    } else if (command === 'checkall'){
+        await groupCheckAll(group);
+    }
 })
 
 client.on("message.private.group", async (e) => {
-    const msg = e.raw_message.trim();
+    const msg = e.raw_message.trim().toLowerCase();
 
     const {group_id} = e.sender;
     if (group_id !== targetGroup) {
@@ -36,22 +51,10 @@ client.on("message.private.group", async (e) => {
     if (msg === "check") {
         const member = group.pickMember(e.user_id);
         const card = member.card || "";
-        if (mainRule.test(card)){
-            await member.sendMsg("合格");
+        if (mainRule.test(card)) {
+            await member.sendMsg(`你的群名片 ${card} 合格`);
         } else {
-            let msg = "不合格，应符合以下规则：\n" + mainWarn;
-            if (rulesList.length > 0) {
-                msg += "额外规则：\n";
-                for (const rule of rulesList) {
-                    if (!rule.re.test(card)) {
-                        if (rule.warn) {
-                            msg += rule.warn + "\n";
-                        } else {
-                            msg += `正则：${rule.re}\n`;
-                        }
-                    }
-                }
-            }
+            let msg = `你的群名片 ${card} 不合格，应符合规则：\n` + mainWarn;
             await member.sendMsg(msg);
         }
     } else {
