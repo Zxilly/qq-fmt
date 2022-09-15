@@ -8,6 +8,11 @@ const targetGroup = config.target;
 const mainRule = new RegExp(config.rule.re);
 const mainWarn = config.rule.warn;
 
+if (!(group.is_admin || group.is_owner)) {
+    console.log("Bot not grant admin or owner permission");
+    process.exit(1);
+}
+
 client.on("message.group", async (e) => {
     if (e.group_id !== targetGroup) {
         return;
